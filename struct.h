@@ -6,7 +6,7 @@ typedef struct node_t{
 
 typedef struct {
     node_t *head;
-    int data_size;
+    int data_size;//the memory of the blocks
     int size;
 } dll_t;
 
