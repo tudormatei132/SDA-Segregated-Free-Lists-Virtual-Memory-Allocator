@@ -35,7 +35,7 @@ int main(void)
             unsigned int no_bytes;
             scanf("%u", &no_bytes);
             while (!no_bytes) {
-scanf("%u", &no_bytes);
+                scanf("%u", &no_bytes);
             }
             //finds the memory
             dll_t *memory = find_mem(list_array, no_bytes, current_size);
@@ -67,7 +67,7 @@ scanf("%u", &no_bytes);
                     
                     
 
-            //check if a list is free, then remove it if that's the case
+            //check if a list is free, then remove it if that's the case(actually, not sure if it's necessary)
 
             //move the removed block into the ll_t
             ll_add_nth_node(allocd, add_allocd(allocd, memory->head->address), no_bytes, memory->head->address);
@@ -80,9 +80,11 @@ scanf("%u", &no_bytes);
         else if (!strcmp(command, "WRITE")) {
             char *data = malloc(50);
             unsigned int no_bytes;
-            scanf("%lu %s %u", &address, data, &no_bytes);
+            scanf("%lx %s %u", &address, data, &no_bytes);
             write_address(allocd, address, no_bytes, data);
-            printf("%s", (char *)allocd->head->data);
+        }
+        else if (!strcmp(command, "READ")) {
+
         }
     }
 }
