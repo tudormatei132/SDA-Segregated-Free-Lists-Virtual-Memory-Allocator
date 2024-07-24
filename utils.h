@@ -1,3 +1,4 @@
+//Matei Tudor-Andrei 314CA
 #define DIE(assertion, call_description)				\
 	do {								\
 		if (assertion) {					\
@@ -8,188 +9,182 @@
 		}							\
 	} while (0)
 
+int ll_get_size(linked_list_t *list);
 
-dll_t* create_list(int data_size)
+linked_list_t *ll_create(int data_size)
 {
-    dll_t *result = malloc(sizeof(*result));
-    result->size = 0;
-    result->data_size = data_size;
-    return result;
+	/* TODO */
+	linked_list_t *result = malloc(sizeof(*result));
+	DIE(!result, "error");
+	result->head = NULL;
+	result->data_size = data_size;
+	result->size = 0;
+	return result;
 }
 
-void move_right(void** array, int n, int pos, int data_size) {
-    //assuming that the array has already been realloc'd
-    char *c = *array;
-    if (!c)
-        exit(0);
-    for (int i = n; i > pos; i--) {
-        memcpy(c + i * data_size, c + (i - 1)*data_size, data_size);
-    }
-}
-
-void move_left(void** array, int n, int pos, int data_size) {
-    char *c = (char *) *array;
-    for (int i = pos; i < n - 1; i++) {
-        memcpy(c + i * data_size, c + (i + 1)*data_size, data_size);
-    }
-    c = realloc(*array, (data_size) * (n - 1));
-    if (!c)
-        exit(0);
-    *array = c;
-}
-
-
-int add_new_dim(dll_t*** array, int *n, unsigned int new_size)
+void ll_add_nth_node(linked_list_t *list, int n, const void *new_data)
 {
-    dll_t* new = create_list(new_size);
-    for (int i = 0; i < *n; i++) {
-        if (new_size < (*array)[i]->data_size) {
-            for (int j = *n; j > i; j--) {
-            (*array)[j] = (*array)[j - 1];
-            }
-            *n = *n + 1;
-            (*array)[i] = new;
-            return i; 
-        }
-    }
+	/* TODO */
+	if (n < 0)
+		return;
+	if (list->size == 0) {
+		list->head = malloc(sizeof(al_node_t));
+		DIE(!list->head, "error");
+		list->head->data = malloc(list->data_size);
+		DIE(!list->head->data, "error");
+		memcpy(list->head->data, new_data, list->data_size);
+		list->head->next = NULL;
+		list->size++;
+		return;
+	}
+	if (n == 0) {
+		al_node_t *new_node = malloc(sizeof(al_node_t));
+		DIE(!new_node, "error");
+		new_node->data = malloc(list->data_size);
+		DIE(!new_node->data, "error");
+		memcpy(new_node->data, new_data, list->data_size);
+		new_node->next = list->head;
+		list->head = new_node;
+		list->size++;
+		return;
+	}
+
+	if (n >= list->size) {
+		al_node_t *new_node = malloc(sizeof(al_node_t));
+		DIE(!new_node, "error");
+		new_node->data = malloc(list->data_size);
+		DIE(!new_node->data, "error");
+		memcpy(new_node->data, new_data, list->data_size);
+		al_node_t *temp = list->head;
+		while (temp->next)
+			temp = temp->next;
+		temp->next = new_node;
+		new_node->next = NULL;
+		list->size++;
+		return;
+	}
+
+	n--;
+	al_node_t *new_node = malloc(sizeof(al_node_t));
+	DIE(!new_node, "error");
+	new_node->data = malloc(list->data_size);
+	DIE(!new_node->data, "error");
+	memcpy(new_node->data, new_data, list->data_size);
+
+	al_node_t *temp = list->head;
+	while (n--)
+		temp = temp->next;
+	new_node->next = temp->next;
+	temp->next = new_node;
+	list->size++;
 }
 
-
-
-
-void
-ll_add_nth_node(linked_list_t* list, unsigned int n, unsigned int data_size, unsigned long address)
+al_node_t *ll_remove_nth_node(linked_list_t *list, int n)
 {
-    if (n < 0)
-        return;
-    if (list->size == 0) {
-        list->head = malloc(sizeof(al_node_t));
-        list->head->address = address;
-        list->head->data_size = data_size;
-        DIE(!list->head, "error");
-        list->head->data = malloc(data_size);
-        DIE(!list->head->data, "error");
-        list->head->next = NULL;
-        list->size++;
-        return;
-    }
-    al_node_t* new_node = malloc(sizeof(al_node_t));
-    DIE(!new_node, "error");
-    new_node->data = malloc(data_size);
-    DIE(!new_node->data, "error");
-    new_node->data_size = data_size;
-    new_node->address = address;    
-    if (n == 0) {
-        new_node->next = list->head;
-        list->head = new_node;
-        list->size++;
-        return;
-    }
-    
-    if (n >= list->size) {
-        al_node_t* temp = list->head;
-        while (temp->next) {
-        temp = temp->next;
-        }
-        temp->next = new_node;
-        new_node->next = NULL;
-        list->size++;
-        return;
-    }
+	/* TODO */
+	list->size = ll_get_size(list);
+	if (n < 0 || list->size == 0)
+		return NULL;
 
-    n--;
-    al_node_t* temp = list->head;
-    while (n--) {
-        temp = temp->next;
-    }
-    new_node->next = temp->next;
-    temp->next = new_node;
-    list->size++;
+	al_node_t *temp = list->head;
+	if (n == 0) {
+		list->head = list->head->next;
+		temp->next = NULL;
+		return temp;
+	}
+
+	if (n >= list->size - 1) {
+		al_node_t *next;
+		next = temp->next;
+		while (next->next) {
+			temp = temp->next;
+			next = temp->next;
+		}
+		temp->next = NULL;
+		return next;
+	}
+	n--;
+	while (n--)
+		temp = temp->next;
+	al_node_t *ans = temp->next;
+	temp->next = ans->next;
+	return ans;
 }
 
-al_node_t*
-ll_remove_nth_node(linked_list_t* list, unsigned int n, unsigned int data_size)
+int ll_get_size(linked_list_t *list)
 {
-    /* TODO */
-    if (n < 0 || list->size == 0)
-    {
-        al_node_t* ans = malloc(sizeof(*ans));
-        ans->data = malloc(sizeof(data_size));
-        return ans;
-    }
-
-    al_node_t* temp = list->head;
-     if (n == 0) {
-        list->head = list->head->next;
-        temp->next = NULL;
-        return temp;
-    }
-
-    if (n >= list->size - 1) {
-        al_node_t* next;
-        next = temp->next;
-        while (next->next) {
-            temp = temp->next;
-            next = temp->next;
-        }
-        temp->next = NULL;
-        return next;
-    }
-    n--;
-    while (n--) {
-        temp = temp->next;
-    }
-    al_node_t *ans = temp->next;
-    temp->next = ans->next;
-    return ans;
+	/* TODO */
+	int size = 0;
+	al_node_t *current = list->head;
+	if (!current)
+		return 0;
+	while (current) {
+		size++;
+		current = current->next;
+	}
+	return size;
 }
 
+dll_t *dll_create(int data_size)
+{
+	/* TODO */
+	dll_t *ans = malloc(sizeof(*ans));
+	DIE(!ans, "malloc() failed");
+	ans->head = NULL;
+	ans->data_size = data_size;
+	ans->size = 0;
+	return ans;
+}
 
-node_t*
-dll_get_nth_node(dll_t* list, unsigned int n)
+node_t *dll_get_nth_node(dll_t *list, int n)
 {
 	/* TODO */
 	if (list->size == 0)
 		return NULL;
 	n = n % list->size;
-	node_t* node = list->head;
-	while (n--) {
+	node_t *node = list->head;
+	while (n--)
 		node = node->next;
-	}
 	return node;
 }
 
 void
-dll_add_nth_node(dll_t* list, unsigned int n, unsigned long address)
+dll_add_nth_node(dll_t *list, int n, const void *new_data)
 {
 	/* TODO */
 	if (n < 0)
 		return;
 	node_t *node = malloc(sizeof(node_t));
 	DIE(!node, "ERROR");
-	node->address = address;
+	node->data = malloc(list->data_size);
+	DIE(!node->data, "ERROR");
+	memcpy(node->data, new_data, list->data_size);
 	if (list->size == 0) {
-		node->next = NULL;
-		node->prev = NULL;
+		node->next = node;
+		node->prev = node;
 		list->head = node;
 		list->size++;
 		return;
 	}
 	if (n == 0) {
-		node_t *head = list->head;
-		node->next = head;
-		node->prev = NULL;
-		head->prev = node;
+		node_t *current = list->head->prev;
+		node_t *nxt = list->head;
+		node->next = nxt;
+		node->prev = current;
+		current->next = node;
+		nxt->prev = node;
 		list->head = node;
 		list->size++;
 
 		return;
 	}
 	if (n >= list->size) {
-		n = list->size - 1;	
-		node_t *tail = dll_get_nth_node(list, n);
-		node->next = NULL;
+		n = list->size - 1;
+		node_t *head = list->head;
+		node_t *tail = list->head->prev;
+		node->next = head;
 		node->prev = tail;
+		head->prev = node;
 		tail->next = node;
 		list->size++;
 
@@ -206,24 +201,24 @@ dll_add_nth_node(dll_t* list, unsigned int n, unsigned long address)
 }
 
 node_t*
-dll_remove_nth_node(dll_t *list, unsigned int n)
+dll_remove_nth_node(dll_t *list, int n)
 {
-    if (!list->size)
-        return NULL;
+	/* TODO */
 	if (n == 0) {
 		node_t *ans = list->head;
+		node_t *tail = list->head->prev;
 		node_t *new_h = list->head->next;
 		list->head = new_h;
-        if (new_h)
-		    new_h->prev = NULL;
+		tail->next = new_h;
+		new_h->prev = tail;
 		list->size--;
 		return ans;
 	}
 	if (n >= list->size) {
-        n = list->size - 1;
-		node_t *ans = dll_get_nth_node(list, n);
-		node_t *new = ans->prev;
-		new->next = NULL;
+		node_t *ans = list->head->prev;
+		node_t *new_t = ans->prev;
+		list->head->prev = new_t;
+		new_t->next = list->head;
 		list->size--;
 		return ans;
 	}
@@ -236,56 +231,172 @@ dll_remove_nth_node(dll_t *list, unsigned int n)
 	return ans;
 }
 
-
-void init_lists(dll_t** array, int n, unsigned long address)
+int
+dll_get_size(dll_t *list)
 {
-    int i = n;
-    while (i) {
-        int no_elements = pow(2, i - 1);
-        array[n - i]->size = 0;
-        int c = 0;
-        while (no_elements--) {
-            dll_add_nth_node(array[n - i], c, address);
-            address += array[n - i]->data_size;
-            c++;
-        }
-        i--;
-    }
+	/* TODO */
+	int c = 0;
+	node_t *temp = list->head;
+	if (temp)
+		c++;
+	temp = temp->next;
+	while (temp != list->head) {
+		c++;
+		temp = temp->next;
+	}
+	return c;
+}
+
+int add_new_dim(dll_t ***array, int *n, int new_size)
+{
+	dll_t *new = dll_create(sizeof(free_block_t));
+	int i = 0;
+	for (i = 0; i < *n; i++) {
+		if ((*array)[i]->size) {
+			free_block_t *temp = (*array)[i]->head->data;
+		if (new_size < temp->block_size) {
+			for (int j = *n; j > i; j--)
+				(*array)[j] = (*array)[j - 1];
+			*n = *n + 1;
+			(*array)[i] = new;
+			return i;
+		}
+		}
+	}
+	(*array)[*n] = new;
+	*n = *n + 1;
+	return i;
+}
+
+void print_dll_address(dll_t *list)
+{
+	node_t *temp = list->head;
+	free_block_t *dtemp = temp->data;
+		printf(" 0x%lx", dtemp->address);
+		temp = temp->next;
+	while (temp != list->head) {
+		free_block_t *dtemp = temp->data;
+		printf(" 0x%lx", dtemp->address);
+		temp = temp->next;
+	}
+}
+
+void print_ll_address(linked_list_t *list)
+{
+	al_node_t *temp = list->head;
+	while (temp) {
+		al_block_t *dtemp = temp->data;
+		printf(" (0x%lx - %d)", dtemp->address, dtemp->block_size);
+		temp = temp->next;
+	}
+	printf("\n");
+}
+
+void init_lists(dll_t **array, int n, unsigned long address, int bytes)
+{
+	int i = n;
+	free_block_t *temp = malloc(sizeof(*temp));
+	while (i) {
+		int no_elements = bytes / pow(2, n - i + 3);
+		array[n - i]->size = 0;
+		int c = 0;
+
+		temp->block_size = pow(2, n - i + 3);
+		while (no_elements--) {
+			temp->address = address;
+			dll_add_nth_node(array[n - i], c, temp);
+			address += pow(2, n - i + 3);
+			c++;
+		}
+
+		i--;
+	}
+	free(temp);
 }
 
 int dll_fragment_placer(dll_t *list, unsigned long address)
 {
-    node_t *temp = list->head;
-    int c = 0;
-    while (temp) {
-        if (address < temp->address) {
-            return c; 
-        }
-        temp = temp->next;
-        c++;
-    }
-    return c;
+	//finds the spot for the free block in a doubly linked list
+	node_t *temp = list->head;
+	int c = 0;
+	free_block_t *dtemp = (free_block_t *)temp->data;
+		if (address < dtemp->address)
+			return c;
+		temp = temp->next;
+		c++;
+	while (temp != list->head) {
+		free_block_t *dtemp = (free_block_t *)temp->data;
+		if (address < dtemp->address)
+			return c;
+		temp = temp->next;
+		c++;
+	}
+	return c;
 }
 
-int add_allocd(linked_list_t *list, unsigned long address) {
-    if (!list->size)
-        return 0;
-    al_node_t *temp = list->head;
-    int n = 0;
-    while (temp) {
-        if (address < temp->address)
-            return n;
-        n++;
-        temp = temp->next;
-    }
-    return n;
-}
-
-void ll_print(linked_list_t* list)
+int add_allocd(linked_list_t *list, unsigned long address)
 {
-    al_node_t* temp = list->head;
-    while (temp) {
-        printf("%lu", temp->address);
-        temp = temp->next;
-    }
+	//finds the spot for the new allocated block
+	if (!list->size)
+		return 0;
+	al_node_t *temp = list->head;
+	int n = 0;
+	while (temp) {
+		al_block_t *dtemp = temp->data;
+		if (address < dtemp->address)
+			return n;
+		n++;
+		temp = temp->next;
+	}
+	return n;
+}
+
+void dll_free(dll_t **list)
+{
+	node_t *temp = (*list)->head;
+	while ((*list)->size--) {
+		node_t *next = temp->next;
+		free(temp->data);
+		free(temp);
+		temp = next;
+	}
+	free(*list);
+}
+
+void ll_free(linked_list_t **list)
+{
+	al_node_t *temp = (*list)->head;
+	while (temp) {
+		al_node_t *next = temp->next;
+		al_block_t *dtemp = temp->data;
+		free(dtemp->data);
+		free(temp->data);
+		free(temp);
+		temp = next;
+	}
+	free(*list);
+}
+
+void init_heap(unsigned long *address, int *n, int *bytes,
+			   int *current_size, dll_t ***list_array, linked_list_t **allocd,
+			   int *free_mem, int *free_blocks)
+{
+	scanf("%lx", address);
+			scanf("%d", n);
+			*current_size = *n;
+			*list_array = malloc(*n * sizeof(**list_array));
+			DIE(!(*list_array), "malloc () failed");
+			*allocd = ll_create(sizeof(al_block_t));
+			DIE(!(*allocd), "malloc () failed");
+			scanf("%d", bytes);
+			int bonus = 0;
+			scanf("%d", &bonus);
+			*free_mem = *bytes;
+			for (int i = 0; i < *n; i++)
+				(*list_array)[i] = dll_create(sizeof(free_block_t));
+			*free_mem = *n * (*bytes);
+			//initializing the segregated free lists
+			init_lists(*list_array, *n, *address, *bytes);
+			for (int i = 0; i < *n; i++)
+				(*free_blocks) += (*list_array)[i]->size;
 }
