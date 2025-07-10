@@ -1,5 +1,3 @@
-**Nume:Matei Tudor-Andrei**
-**Grupă:314CA**
 
 ## Segregated Free Lists (Tema 1)
 
